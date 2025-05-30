@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Successful - UPI Payment Gateway</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <h1>ShopEasy</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="index.html#products">Products</a></li>
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="success">
+      <div class="container">
+        <div class="success-message">
+          <i class="fas fa-check-circle"></i>
+          <h2>Payment Successful!</h2>
+          <p>Your order has been placed successfully.</p>
+          
+          <div class="order-details">
+            <h3>Order Details</h3>
+            <p>Order ID: <span id="success-order-id"></span></p>
+            <p>Amount Paid: ₹<span id="success-amount"></span></p>
+            <p>Payment ID: <span id="success-payment-id"></span></p>
+          </div>
+          
+          <p>A confirmation email has been sent to your registered email address.</p>
+          
+          <div class="success-actions">
+            <a href="index.html" class="btn">Continue Shopping</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2023 ShopEasy. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/success.js"></script>
+</body>
+</html>

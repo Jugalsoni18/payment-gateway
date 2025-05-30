@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Logs Dashboard - Admin</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+
+    .filters {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .filters h3 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .filter-group label {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #555;
+    }
+
+    .filter-group input,
+    .filter-group select {
+      padding: 10px;
+      border: 2px solid #e1e1e1;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5a6fd8;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .summary-card {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .summary-card h4 {
+      color: #666;
+      margin-bottom: 10px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .summary-card .value {
+      font-size: 2em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .summary-card.success .value {
+      color: #28a745;
+    }
+
+    .summary-card.danger .value {
+      color: #dc3545;
+    }
+
+    .summary-card.warning .value {
+      color: #ffc107;
+    }
+
+    .summary-card.info .value {
+      color: #17a2b8;
+    }
+
+    .logs-container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .logs-header {
+      background: #f8f9fa;
+      padding: 20px;
+      border-bottom: 1px solid #e1e1e1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logs-header h3 {
+      color: #333;
+    }
+
+    .pagination-info {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .logs-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .logs-table th,
+    .logs-table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #e1e1e1;
+    }
+
+    .logs-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #333;
+      position: sticky;
+      top: 0;
+    }
+
+    .logs-table tr:hover {
+      background: #f8f9fa;
+    }
+
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-created { background: #e3f2fd; color: #1976d2; }
+    .status-pending { background: #fff3e0; color: #f57c00; }
+    .status-paid { background: #e8f5e8; color: #2e7d32; }
+    .status-captured { background: #e8f5e8; color: #2e7d32; }
+    .status-failed { background: #ffebee; color: #c62828; }
+    .status-refunded { background: #f3e5f5; color: #7b1fa2; }
+
+    .method-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #e1e1e1;
+      color: #333;
+    }
+
+    .amount {
+      font-weight: 600;
+      color: #2e7d32;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 50px;
+      color: #666;
+    }
+
+    .error {
+      background: #ffebee;
+      color: #c62828;
+      padding: 20px;
+      border-radius: 5px;
+      margin: 20px 0;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      gap: 10px;
+    }
+
+    .pagination button {
+      padding: 8px 16px;
+      border: 1px solid #e1e1e1;
+      background: white;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .pagination button:hover {
+      background: #f8f9fa;
+    }
+
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagination .current-page {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+
+      .filter-row {
+        grid-template-columns: 1fr;
+      }
+
+      .logs-table {
+        font-size: 12px;
+      }
+
+      .logs-table th,
+      .logs-table td {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>💳 Payment Logs Dashboard</h1>
+      <p>Comprehensive audit trail and monitoring for all payment transactions</p>
+      <div style="margin-top: 15px;">
+        <a href="admin-orders.html" style="background: rgba(255,255,255,0.2); color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">📋 Orders Dashboard</a>
+        <a href="admin-logs.html" style="background: rgba(255,255,255,0.3); color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">📊 Payment Logs</a>
+      </div>
+    </div>
+
+    <div class="filters">
+      <h3>🔍 Filters & Search</h3>
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="orderId">Order ID</label>
+          <input type="text" id="orderId" placeholder="Enter Order ID">
+        </div>
+        <div class="filter-group">
+          <label for="paymentId">Payment ID</label>
+          <input type="text" id="paymentId" placeholder="Enter Payment ID">
+        </div>
+        <div class="filter-group">
+          <label for="status">Status</label>
+          <select id="status">
+            <option value="">All Statuses</option>
+            <option value="created">Created</option>
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="captured">Captured</option>
+            <option value="failed">Failed</option>
+            <option value="refunded">Refunded</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="method">Payment Method</label>
+          <select id="method">
+            <option value="">All Methods</option>
+            <option value="upi">UPI</option>
+            <option value="card">Card</option>
+            <option value="netbanking">Net Banking</option>
+            <option value="wallet">Wallet</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="startDate">Start Date</label>
+          <input type="date" id="startDate">
+        </div>
+        <div class="filter-group">
+          <label for="endDate">End Date</label>
+          <input type="date" id="endDate">
+        </div>
+        <div class="filter-group">
+          <label for="eventType">Event Type</label>
+          <select id="eventType">
+            <option value="">All Events</option>
+            <option value="order_created">Order Created</option>
+            <option value="payment_initiated">Payment Initiated</option>
+            <option value="payment_captured">Payment Captured</option>
+            <option value="payment_failed">Payment Failed</option>
+            <option value="webhook_received">Webhook Received</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="source">Source</label>
+          <select id="source">
+            <option value="">All Sources</option>
+            <option value="api">API</option>
+            <option value="webhook">Webhook</option>
+            <option value="callback">Callback</option>
+            <option value="manual">Manual</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary" onclick="loadLogs()">🔍 Search</button>
+        <button class="btn btn-secondary" onclick="clearFilters()">🗑️ Clear</button>
+        <button class="btn btn-secondary" onclick="loadSummary()">📊 Refresh Summary</button>
+      </div>
+    </div>
+
+    <div class="summary" id="summary">
+      <!-- Summary cards will be loaded here -->
+    </div>
+
+    <div class="logs-container">
+      <div class="logs-header">
+        <h3>📋 Payment Logs</h3>
+        <div class="pagination-info" id="paginationInfo">
+          Loading...
+        </div>
+      </div>
+
+      <div id="logsContent">
+        <div class="loading">
+          <p>Loading payment logs...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Admin Logs Dashboard JavaScript
+    let currentPage = 1;
+    let totalPages = 1;
+    const logsPerPage = 20;
+
+    // Load logs on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadSummary();
+      loadLogs();
+    });
+
+    // Load summary data
+    async function loadSummary() {
+      try {
+        const response = await fetch('/api/payment/logs-summary');
+        const data = await response.json();
+
+        if (data.success) {
+          displaySummary(data.summary);
+        }
+      } catch (error) {
+        console.error('Error loading summary:', error);
+      }
+    }
+
+    // Display summary cards
+    function displaySummary(summary) {
+      const summaryContainer = document.getElementById('summary');
+
+      // Calculate totals
+      let totalTransactions = 0;
+      let totalAmount = 0;
+      let successfulPayments = 0;
+      let failedPayments = 0;
+
+      summary.forEach(item => {
+        totalTransactions += parseInt(item.count);
+        totalAmount += parseInt(item.total_amount || 0);
+
+        if (item.status === 'paid' || item.status === 'captured') {
+          successfulPayments += parseInt(item.count);
+        } else if (item.status === 'failed') {
+          failedPayments += parseInt(item.count);
+        }
+      });
+
+      const successRate = totalTransactions > 0 ? ((successfulPayments / totalTransactions) * 100).toFixed(1) : 0;
+
+      summaryContainer.innerHTML = `
+        <div class="summary-card info">
+          <h4>Total Transactions</h4>
+          <div class="value">${totalTransactions}</div>
+        </div>
+        <div class="summary-card success">
+          <h4>Total Amount</h4>
+          <div class="value">₹${(totalAmount / 100).toFixed(2)}</div>
+        </div>
+        <div class="summary-card success">
+          <h4>Successful Payments</h4>
+          <div class="value">${successfulPayments}</div>
+        </div>
+        <div class="summary-card danger">
+          <h4>Failed Payments</h4>
+          <div class="value">${failedPayments}</div>
+        </div>
+        <div class="summary-card warning">
+          <h4>Success Rate</h4>
+          <div class="value">${successRate}%</div>
+        </div>
+      `;
+    }
+
+    // Load logs with filters
+    async function loadLogs(page = 1) {
+      try {
+        currentPage = page;
+        const filters = getFilters();
+        const queryParams = new URLSearchParams({
+          page: page,
+          limit: logsPerPage,
+          ...filters
+        });
+
+        const response = await fetch(`/api/payment/logs?${queryParams}`);
+        const data = await response.json();
+
+        if (data.success) {
+          displayLogs(data.logs);
+          updatePagination(data.pagination);
+        } else {
+          showError('Failed to load logs: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error loading logs:', error);
+        showError('Error loading logs: ' + error.message);
+      }
+    }
+
+    // Get filter values
+    function getFilters() {
+      const filters = {};
+
+      const orderId = document.getElementById('orderId').value.trim();
+      const paymentId = document.getElementById('paymentId').value.trim();
+      const status = document.getElementById('status').value;
+      const method = document.getElementById('method').value;
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const eventType = document.getElementById('eventType').value;
+      const source = document.getElementById('source').value;
+
+      if (orderId) filters.orderId = orderId;
+      if (paymentId) filters.paymentId = paymentId;
+      if (status) filters.status = status;
+      if (method) filters.method = method;
+      if (startDate) filters.startDate = startDate;
+      if (endDate) filters.endDate = endDate;
+      if (eventType) filters.eventType = eventType;
+      if (source) filters.source = source;
+
+      return filters;
+    }
+
+    // Display logs in table
+    function displayLogs(logs) {
+      const logsContent = document.getElementById('logsContent');
+
+      if (logs.length === 0) {
+        logsContent.innerHTML = '<div class="loading"><p>No logs found matching the criteria.</p></div>';
+        return;
+      }
+
+      const tableHTML = `
+        <table class="logs-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Payment ID</th>
+              <th>Status</th>
+              <th>Amount</th>
+              <th>Method</th>
+              <th>Event Type</th>
+              <th>Source</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${logs.map(log => `
+              <tr>
+                <td>${log.order_id || '-'}</td>
+                <td>${log.payment_id || '-'}</td>
+                <td><span class="status-badge status-${log.status}">${log.status}</span></td>
+                <td class="amount">₹${(log.amount / 100).toFixed(2)}</td>
+                <td>${log.method ? `<span class="method-badge">${log.method}</span>` : '-'}</td>
+                <td>${log.event_type}</td>
+                <td>${log.source}</td>
+                <td>${new Date(log.created_at).toLocaleString()}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+
+      logsContent.innerHTML = tableHTML;
+    }
+
+    // Update pagination
+    function updatePagination(pagination) {
+      totalPages = pagination.totalPages;
+
+      document.getElementById('paginationInfo').textContent =
+        `Showing ${pagination.offset + 1}-${Math.min(pagination.offset + pagination.limit, pagination.totalRecords)} of ${pagination.totalRecords} records`;
+
+      // Add pagination controls
+      const paginationHTML = `
+        <div class="pagination">
+          <button onclick="loadLogs(1)" ${currentPage === 1 ? 'disabled' : ''}>First</button>
+          <button onclick="loadLogs(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>
+          <button class="current-page">${currentPage}</button>
+          <button onclick="loadLogs(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next</button>
+          <button onclick="loadLogs(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>Last</button>
+        </div>
+      `;
+
+      document.getElementById('logsContent').innerHTML += paginationHTML;
+    }
+
+    // Clear all filters
+    function clearFilters() {
+      document.getElementById('orderId').value = '';
+      document.getElementById('paymentId').value = '';
+      document.getElementById('status').value = '';
+      document.getElementById('method').value = '';
+      document.getElementById('startDate').value = '';
+      document.getElementById('endDate').value = '';
+      document.getElementById('eventType').value = '';
+      document.getElementById('source').value = '';
+
+      loadLogs(1);
+    }
+
+    // Show error message
+    function showError(message) {
+      const logsContent = document.getElementById('logsContent');
+      logsContent.innerHTML = `<div class="error">${message}</div>`;
+    }
+  </script>
+</body>
+</html>

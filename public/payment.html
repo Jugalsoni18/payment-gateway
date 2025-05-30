@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment - UPI QR Code</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <h1>ShopEasy</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="index.html#products">Products</a></li>
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="payment">
+      <div class="container">
+        <h2>Complete Your Payment</h2>
+
+        <div class="payment-container">
+          <div class="payment-details">
+            <h3>Order Details</h3>
+            <p>Order ID: <span id="order-id"></span></p>
+            <p>Amount: ₹<span id="order-amount"></span></p>
+          </div>
+
+          <div class="qr-code-container">
+            <h3>Scan & Pay with any UPI App</h3>
+            <div class="qr-code" style="text-align: center; margin: 20px 0;">
+              <img id="qr-code-img" src="" alt="UPI QR Code" style="max-width: 300px; margin: 0 auto; display: block; border: 1px solid #ddd; padding: 10px; background-color: white;">
+              <div id="qr-loading" style="text-align: center; margin-top: 10px;">
+                <p>Loading QR code...</p>
+                <div class="spinner"></div>
+              </div>
+            </div>
+            <div class="payment-instructions">
+              <p>1. Open any UPI app (Google Pay, PhonePe, Paytm, etc.)</p>
+              <p>2. Scan this QR code</p>
+              <p>3. Verify the amount and merchant</p>
+              <p>4. Enter your UPI PIN to complete the payment</p>
+              <!-- Direct payment button will be added here by JavaScript -->
+            </div>
+            <div class="timer">
+              <p>QR Code expires in: <span id="countdown">15:00</span></p>
+            </div>
+          </div>
+
+          <div class="payment-status">
+            <h3>Payment Status</h3>
+            <div id="status-message" class="pending">
+              <i class="fas fa-spinner fa-spin"></i>
+              <p>Waiting for payment...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2023 ShopEasy. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/websocket-client.js"></script>
+  <script src="js/payment.js"></script>
+</body>
+</html>

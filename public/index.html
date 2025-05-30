@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UPI Payment Gateway - E-commerce</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <h1>ShopEasy</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="#products">Products</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="cart-icon">
+        <a href="#" id="cart-btn">
+          <i class="fas fa-shopping-cart"></i>
+          <span id="cart-count">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h2>Shop with Ease using UPI</h2>
+        <p>Secure, Fast, and Convenient Shopping Experience</p>
+        <a href="#products" class="btn">Shop Now</a>
+      </div>
+    </section>
+
+
+
+    <section id="products" class="products">
+      <div class="container">
+        <h2>Our Products</h2>
+        <div class="product-grid" id="product-list">
+          <!-- Products will be loaded dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <section id="cart-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Your Cart</h2>
+        <div id="cart-items">
+          <!-- Cart items will be loaded dynamically -->
+        </div>
+        <div class="cart-total">
+          <p>Total: ₹<span id="cart-total">0</span></p>
+        </div>
+        <button id="checkout-btn" class="btn">Proceed to Checkout</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2023 ShopEasy. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

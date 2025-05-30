@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - UPI Payment Gateway</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <h1>ShopEasy</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="index.html#products">Products</a></li>
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="checkout">
+      <div class="container">
+        <h2>Checkout</h2>
+
+        <div class="checkout-container">
+          <div class="order-summary">
+            <h3>Order Summary</h3>
+            <div id="checkout-items">
+              <!-- Order items will be loaded dynamically -->
+            </div>
+            <div class="order-total">
+              <p>Total: ₹<span id="order-total">0</span></p>
+            </div>
+          </div>
+
+          <div class="checkout-form">
+            <h3>Shipping Information</h3>
+            <form id="shipping-form">
+              <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+              </div>
+
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+              </div>
+
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" required>
+              </div>
+
+              <div class="form-group">
+                <label for="street">Street Address</label>
+                <input type="text" id="street" name="street" required>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="city">City</label>
+                  <input type="text" id="city" name="city" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="state">State</label>
+                  <input type="text" id="state" name="state" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="pincode">PIN Code</label>
+                <input type="text" id="pincode" name="pincode" required>
+              </div>
+
+              <h3>Payment Method</h3>
+              <div class="payment-methods">
+                <div class="payment-method">
+                  <input type="radio" id="upi" name="payment-method" value="upi" checked>
+                  <label for="upi">UPI / QR Code</label>
+                </div>
+              </div>
+
+              <button type="submit" class="btn" id="place-order-btn">Place Order</button>
+              <div id="redirect-fallback" style="display: none; margin-top: 20px; text-align: center;">
+                <p>If you are not redirected automatically, please click the button below:</p>
+                <a href="payment.html" class="btn" style="margin-top: 10px;">Go to Payment Page</a>
+              </div>
+              <script>
+                // Show fallback redirect button after 3 seconds if still on this page
+                setTimeout(function() {
+                  document.getElementById('redirect-fallback').style.display = 'block';
+                }, 3000);
+              </script>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2023 ShopEasy. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script>
+    // Add debugging to check for errors
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error('JavaScript Error:', message, 'at', source, 'line', lineno);
+      alert('Error: ' + message + ' at line ' + lineno);
+      return false;
+    };
+
+    // Make sure formatPrice is available
+    if (typeof formatPrice !== 'function') {
+      console.error('formatPrice function is not defined');
+      // Define a fallback formatPrice function if it's missing
+      window.formatPrice = function(price) {
+        return '₹' + price.toFixed(2);
+      };
+    }
+  </script>
+  <script src="js/checkout.js"></script>
+</body>
+</html>
