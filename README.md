@@ -58,6 +58,84 @@ Transform your online business with seamless UPI payments, real-time order track
 - Graceful fallbacks for network issues
 - Comprehensive logging and error tracking
 
+### 📈 **Advanced Payment Reliability & DevOps Enhancements**
+
+#### 🔁 **Webhook Retry Queue with Bull.js + Redis**
+Ensure no payment confirmation is lost due to network/server issues.
+
+```bash
+npm install bull ioredis
+```
+Implements a retryable webhook queue with exponential backoff.
+
+**Files added:**
+- `queues/paymentQueue.js`
+- `workers/paymentProcessor.js`
+
+Webhook handler now queues payloads and retries on failure.
+
+#### 🔁 **Fallback Polling for Payment Status**
+If WebSocket or SSE fails, frontend falls back to polling.
+
+- New API route: `GET /api/payment/status/:orderId`
+- Client polls every 10s if no real-time update is received.
+
+```js
+// Frontend JS fallback
+setInterval(async () => {
+  const res = await fetch(`/api/payment/status/${orderId}`);
+  const { status } = await res.json();
+  if (status === 'PAID') window.location.href = '/success.html';
+}, 10000);
+```
+
+#### 🧪 **Integration Testing with Jest or Mocha**
+Automated tests now verify key payment flows.
+
+```bash
+npm install --save-dev jest supertest
+```
+- Tests order creation, webhook processing, and status updates.
+- Test file: `/tests/payment.test.js`
+
+#### 🗃️ **Redis + Socket.IO Adapter for WebSocket Scaling**
+Enables multi-instance real-time communication.
+
+```bash
+npm install socket.io-redis
+```
+
+```js
+// server.js
+const redisAdapter = require('socket.io-redis');
+io.adapter(redisAdapter({ host: 'localhost', port: 6379 }));
+```
+
+#### 💳 **Transaction Ledger for Payment Auditing**
+Stores all verified payment transactions in a dedicated database table.
+
+- New Sequelize model: `models/Transaction.js`
+- Fields: `order_id`, `payment_id`, `event_type`, `amount`, `timestamp`
+
+#### 📄 **Store Purchase Details After Payment Confirmation**
+User purchase data is only stored in the DB after successful payment verification.
+
+- New model: `models/Purchase.js`
+- Captures: `name`, `email`, `phone`, `items`, `amount`, `status`
+- Saved via verified webhook handler
+
+#### ⚠️ **Rate Limiting to Prevent Abuse**
+API endpoints are now protected from brute force attacks.
+
+```bash
+npm install express-rate-limit
+```
+
+```js
+const rateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
+app.use('/api/payment', rateLimiter);
+```
+
 ---
 
 ## 🚀 Quick Start Guide
@@ -66,6 +144,7 @@ Transform your online business with seamless UPI payments, real-time order track
 Make sure you have these installed:
 - **Node.js** (v14 or higher)
 - **PostgreSQL** (v12 or higher)
+- **Redis** (for queue and socket scaling)
 - **Razorpay Account** (free test account works!)
 
 ### 1. Clone & Install
@@ -73,6 +152,17 @@ Make sure you have these installed:
 git clone <your-repo-url>
 cd payment2
 npm install
+
+# Install Redis (required for queue and socket scaling)
+# Mac: brew install redis
+# Ubuntu: sudo apt install redis-server
+# Windows: Download from https://redis.io/download
+
+# Install new dependencies for advanced features
+npm install bull ioredis express-rate-limit socket.io-redis
+
+# Install testing dependencies
+npm install --save-dev jest supertest
 ```
 
 ### 2. Database Setup
@@ -163,10 +253,13 @@ curl -X POST http://localhost:3000/api/payment/create-order \
 ```
 payment2/
 ├── 📁 config/          # Database configuration
-├── 📁 models/          # Sequelize models (Order, Payment, PaymentLog)
+├── 📁 models/          # Sequelize models (Order, Payment, PaymentLog, Purchase, Transaction)
 ├── 📁 routes/          # API routes (payment, order)
 ├── 📁 services/        # Business logic (payment logger)
 ├── 📁 utils/           # Utilities (WebSocket helpers)
+├── 📁 queues/          # Bull.js job queues for webhook retry
+├── 📁 workers/         # Job processors for payment handling
+├── 📁 tests/           # Automated test files (Jest/Mocha)
 ├── 📁 public/          # Frontend assets
 │   ├── 📁 css/         # Stylesheets
 │   ├── 📁 js/          # JavaScript files

@@ -3,12 +3,14 @@ const router = express.Router();
 const Razorpay = require('razorpay');
 const Order = require('../models/Order');
 const Payment = require('../models/Payment');
+const Transaction = require('../models/Transaction');
 const crypto = require('crypto');
 const QRCode = require('qrcode');
 const { Op } = require('sequelize');
 const sequelize = require('../config/database');
 const { broadcastPaymentUpdate, broadcastOrderUpdate } = require('../utils/websocket');
 const PaymentLogger = require('../services/paymentLogger');
+const paymentQueue = require('../queues/paymentQueue');
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
@@ -248,6 +250,45 @@ router.post('/verify', async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+// Get payment status for polling fallback (simplified endpoint)
+router.get('/status/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    // Find order by orderId or razorpayOrderId
+    const order = await Order.findOne({
+      where: {
+        [Op.or]: [
+          { orderId: orderId },
+          { razorpayOrderId: orderId }
+        ]
+      }
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        error: 'Order not found',
+        orderId: orderId
+      });
+    }
+
+    res.json({
+      status: order.paymentStatus,
+      orderId: order.orderId,
+      amount: order.amount,
+      paymentId: order.paymentId,
+      updatedAt: order.updatedAt
+    });
+
+  } catch (error) {
+    console.error('Error fetching payment status:', error);
+    res.status(500).json({
+      error: 'Failed to fetch payment status',
+      message: error.message
+    });
   }
 });
 
@@ -1104,7 +1145,7 @@ async function handleOrderPaid(payment, order, webhookPayload) {
   }
 }
 
-// Razorpay Webhook Endpoint
+// Razorpay Webhook Endpoint (with Queue System)
 router.post('/webhook', async (req, res) => {
   try {
     console.log('Webhook received:', {
@@ -1123,40 +1164,22 @@ router.post('/webhook', async (req, res) => {
       });
     }
 
-    if (!webhookSecret) {
-      console.error('Missing webhook secret in environment variables');
-      return res.status(500).json({
-        error: 'Webhook secret not configured'
-      });
-    }
-
-    // Verify webhook signature
-    const expectedSignature = crypto
-      .createHmac('sha256', webhookSecret)
-      .update(req.body)
-      .digest('hex');
-
-    if (expectedSignature !== webhookSignature) {
-      console.error('Invalid webhook signature', {
-        expected: expectedSignature,
-        received: webhookSignature
-      });
+    // Parse the webhook payload first for basic validation
+    let webhookData;
+    try {
+      webhookData = JSON.parse(req.body.toString());
+    } catch (parseError) {
+      console.error('Invalid JSON in webhook payload:', parseError);
       return res.status(400).json({
-        error: 'Invalid webhook signature'
+        error: 'Invalid JSON payload'
       });
     }
 
-    // Parse the webhook payload
-    const payload = JSON.parse(req.body.toString());
-    console.log('Webhook payload:', JSON.stringify(payload, null, 2));
-
-    const { event: eventInfo, payload: eventPayload } = payload;
-    const { payment, order } = eventPayload;
-    const eventType = eventInfo ? eventInfo.event : payload.event; // Handle both formats
+    // Quick duplicate check before queuing
+    const { event: eventInfo } = webhookData;
     const eventId = eventInfo ? eventInfo.id : `event_${Date.now()}`;
 
-    // Check for duplicate webhook events
-    if (payment && payment.id && eventId) {
+    if (eventId && eventId !== `event_${Date.now()}`) {
       const existingPayment = await Payment.findOne({
         where: { webhookEventId: eventId }
       });
@@ -1170,38 +1193,52 @@ router.post('/webhook', async (req, res) => {
       }
     }
 
-    // Handle different webhook events
-    switch (eventType) {
-      case 'payment.authorized':
-        await handlePaymentAuthorized(payment, order, payload);
-        break;
+    // Add webhook to queue for processing with retry mechanism
+    const job = await paymentQueue.add('process-webhook', {
+      webhookData,
+      signature: webhookSignature,
+      io: req.app.get('io'), // Pass Socket.IO instance
+      timestamp: new Date().toISOString(),
+      headers: {
+        'user-agent': req.headers['user-agent'],
+        'x-forwarded-for': req.headers['x-forwarded-for'],
+        'x-real-ip': req.headers['x-real-ip']
+      }
+    }, {
+      attempts: 5,
+      backoff: {
+        type: 'exponential',
+        delay: 30000 // Start with 30 second delay
+      },
+      removeOnComplete: 50,
+      removeOnFail: 100
+    });
 
-      case 'payment.captured':
-        await handlePaymentCaptured(payment, order, payload);
-        break;
+    console.log(`Webhook queued for processing: Job ID ${job.id}, Event: ${eventInfo?.event || 'unknown'}`);
 
-      case 'payment.failed':
-        await handlePaymentFailed(payment, order, payload);
-        break;
-
-      case 'order.paid':
-        await handleOrderPaid(payment, order, payload);
-        break;
-
-      default:
-        console.log('Unhandled webhook event:', eventType);
-        break;
-    }
-
-    // Respond to Razorpay
+    // Respond immediately to Razorpay (webhook queued successfully)
     res.status(200).json({
       status: 'success',
-      event: eventType,
-      processed: true
+      message: 'Webhook queued for processing',
+      jobId: job.id,
+      event: eventInfo?.event || 'unknown'
     });
 
   } catch (error) {
-    console.error('Webhook processing error:', error);
+    console.error('Webhook queueing error:', error);
+
+    // Log the error for monitoring
+    try {
+      await PaymentLogger.logWebhookEvent('webhook.queue_error', {
+        error: error.message,
+        stack: error.stack,
+        headers: req.headers,
+        bodyLength: req.body ? req.body.length : 0
+      });
+    } catch (logError) {
+      console.error('Error logging webhook queue error:', logError);
+    }
+
     res.status(500).json({
       error: 'Webhook processing failed',
       message: error.message
