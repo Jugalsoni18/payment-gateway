@@ -1,7 +1,7 @@
-# 🚀 Summary
+# Summary
 ShopEasy is a modern UPI payment gateway built with Node.js, Express, and Razorpay. It supports secure, real-time UPI transactions with dynamic QR codes and webhook verification. The frontend is responsive and lightweight, while the backend ensures data reliability using PostgreSQL, Redis, and Socket.IO. Admins get a dashboard for tracking payments and managing orders. Features like rate limiting, payment auditing, and test integration ensure both developer ease and production readiness.
 
-# 🚀 ShopEasy - Modern UPI Payment Gateway
+# ShopEasy - Modern UPI Payment Gateway
 
 **A blazing fast, secure, and developer-friendly e-commerce payment solution powered by Razorpay** ⚡
 
@@ -141,7 +141,7 @@ app.use('/api/payment', rateLimiter);
 
 ---
 
-## 🚀 Quick Start Guide
+## Quick Start Guide
 
 ### Prerequisites
 Make sure you have these installed:
