@@ -1,6 +1,28 @@
 # Summary
 ShopEasy is a modern UPI payment gateway built with Node.js, Express, and Razorpay. It supports secure, real-time UPI transactions with dynamic QR codes and webhook verification. The frontend is responsive and lightweight, while the backend ensures data reliability using PostgreSQL, Redis, and Socket.IO. Admins get a dashboard for tracking payments and managing orders. Features like rate limiting, payment auditing, and test integration ensure both developer ease and production readiness.
 
+- [🛠️ Tech Stack That Powers Success](#-tech-stack-that-powers-success)
+- [🌟 Features That Wow Users](#-features-that-wow-users)
+  - [🛒 Complete Shopping Experience](#-complete-shopping-experience)
+  - [💳 Smart Payment System](#-smart-payment-system)
+  - [📊 Admin Dashboard](#-admin-dashboard)
+  - [🔒 Enterprise-Grade Security](#-enterprise-grade-security)
+  - [⚡ Performance & Reliability](#-performance--reliability)
+  - [📈 Advanced Payment Reliability & DevOps Enhancements](#-advanced-payment-reliability--devops-enhancements)
+    - [🔁 Webhook Retry Queue with Bull.js + Redis](#-webhook-retry-queue-with-bulljs--redis)
+    - [🔁 Fallback Polling for Payment Status](#-fallback-polling-for-payment-status)
+    - [🧪 Integration Testing with Jest or Mocha](#-integration-testing-with-jest-or-mocha)
+    - [🗃️ Redis + Socket.IO Adapter for WebSocket Scaling](#-redis--socketio-adapter-for-websocket-scaling)
+    - [💳 Transaction Ledger for Payment Auditing](#-transaction-ledger-for-payment-auditing)
+    - [📄 Store Purchase Details After Payment Confirmation](#-store-purchase-details-after-payment-confirmation)
+    - [⚠️ Rate Limiting to Prevent Abuse](#-rate-limiting-to-prevent-abuse)
+- [Quick Start Guide](#quick-start-guide)
+- [🔧 Razorpay Integration Guide](#-razorpay-integration-guide)
+- [🧪 Testing Your Integration](#-testing-your-integration)
+- [📁 Project Structure](#-project-structure)
+- [🌍 Environment Variables Reference](#-environment-variables-reference)
+- [📄 License](#-license)
+- [👨‍💻 Built With ❤️](#-built-with-️)
 # ShopEasy - Modern UPI Payment Gateway
 
 **A blazing fast, secure, and developer-friendly e-commerce payment solution powered by Razorpay** ⚡
