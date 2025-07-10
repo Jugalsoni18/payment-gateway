@@ -4,42 +4,42 @@ const products = [
     id: 1,
     name: 'Smartphone',
     price: 15999,
-    image: 'https://via.placeholder.com/300x200?text=Smartphone',
+    image: 'images/phone.jpeg',
     description: 'Latest smartphone with advanced features'
   },
   {
     id: 2,
     name: 'Laptop',
     price: 49999,
-    image: 'https://via.placeholder.com/300x200?text=Laptop',
+    image: 'images/laptop.jpeg',
     description: 'High-performance laptop for work and gaming'
   },
   {
     id: 3,
     name: 'Headphones',
     price: 2499,
-    image: 'https://via.placeholder.com/300x200?text=Headphones',
+    image: 'images/headphones.jpg',
     description: 'Wireless headphones with noise cancellation'
   },
   {
     id: 4,
     name: 'Smartwatch',
     price: 3999,
-    image: 'https://via.placeholder.com/300x200?text=Smartwatch',
+    image: 'images/smartwatch.jpeg',
     description: 'Fitness tracker and smartwatch with heart rate monitor'
   },
   {
     id: 5,
     name: 'Camera',
     price: 29999,
-    image: 'https://via.placeholder.com/300x200?text=Camera',
+    image: 'images/camera.jpeg',
     description: 'Digital camera with 4K video recording'
   },
   {
     id: 6,
     name: 'Bluetooth Speaker',
     price: 1,
-    image: 'https://via.placeholder.com/300x200?text=Speaker',
+    image: 'images/speaker.jpeg',
     description: 'Portable Bluetooth speaker with deep bass'
   }
 ];
